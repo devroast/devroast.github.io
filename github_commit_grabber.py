@@ -19,6 +19,16 @@ class GithubCommitGrabber:
 
         self.hackathon_project_collection.create_index(index)
 
+    def stall_until_credits_refresh(self):
+        r = requests.get("https://api.github.com/rate_limit?access_token={}".format(GITHUB_API_KEY))
+        response = json.loads(r.text)
+        rate_remaining = response["rate"]["remaining"]
+        if rate_remaining < 100:
+            time.sleep(5 * 60)
+            return self.stall_until_credits_refresh()
+        else:
+            return rate_remaining
+
     def get_commits(self):
         def github_link_generator():
 
@@ -42,6 +52,7 @@ class GithubCommitGrabber:
 
             while (True):
                 url = 'https://api.github.com/repos/{}/{}/commits?page={}&access_token={}'.format(username, repo_name, str(i), GITHUB_API_KEY)
+                print self.stall_until_credits_refresh()
                 r = requests.get(url)
                 if r.status_code == 404:
                     break
@@ -79,6 +90,5 @@ class GithubCommitGrabber:
             }
 
             self.hackathon_project_collection.update_one(query, update)
-            time.sleep(15)
 github_scraper = GithubCommitGrabber()
 github_scraper.get_commits()
