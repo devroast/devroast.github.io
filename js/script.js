@@ -8,6 +8,9 @@ $(document).ready(function(){
     $('.graphs').append('<h3>' + $(event.target).text() + '</h3>');
     if ($(event.target).text() == "Award Winners") {
       // Award Winners Graph
+
+      $('.graphs').append('<div><div class="legend" style="top: 60px;color: rgb(31, 119, 180);">No Awards</div><div class="legend" style="top: 85px;color: rgb(255, 127, 14);">1 Award</div><div class="legend" style="top: 110px;color: rgb(44, 160, 44);">2 Awards</div><div class="legend" style="top: 135px;color: rgb(214, 39, 40);">3 Awards</div><div class="legend" style="top: 160px;color: rgb(148, 103, 189);">4 Awards</div><div class="legend" style="top: 185px;color: rgb(140, 86, 75);">5 Awards</div><div class="legend" style="top: 210px;color: rgb(227, 119, 194);">6 Awards</div></div>');
+
       var margin = {top: 30, right: 30, bottom: 30, left: 30},
           width = 960 - margin.left - margin.right,
           height = 500 - margin.top - margin.bottom;
@@ -103,6 +106,7 @@ $(document).ready(function(){
 
     } else if ($(event.target).text() == "Team Size") {
 
+      $('.graphs').append('<div><div class="legend" style="top: 60px;color: rgb(31, 119, 180);">Solo Project</div><div class="legend" style="top: 85px;color: rgb(255, 127, 14);">2-person</div><div class="legend" style="top: 110px;color: rgb(44, 160, 44);">3-person</div><div class="legend" style="top: 135px;color: rgb(214, 39, 40);">4-person</div></div>');
 
       var margin = {top: 30, right: 30, bottom: 30, left: 30},
           width = 960 - margin.left - margin.right,
@@ -411,7 +415,7 @@ $(document).ready(function(){
           .range([height, 0]);
 
       var color = d3.scale.ordinal()
-          .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+          .range(["#D94F5C", "#009DD9", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
       var xAxis = d3.svg.axis()
           .scale(x0)
@@ -494,6 +498,12 @@ $(document).ready(function(){
 
 
     }
+
+    // var svgElement = document.querySelector('svg');
+    // var panZoomTiger = svgPanZoom(svgElement);
+
+
+
   });
 
 

@@ -88,6 +88,14 @@ span.authors {
     content: '// ';
 }
 
+.legend {
+    position: absolute;
+    right: 50px;
+    width: 125px;
+    padding-left: 10px;
+    border-left: 20px solid;
+}
+
 
 
 .filter ul {
