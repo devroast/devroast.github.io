@@ -14,7 +14,7 @@ class GithubCommitGrabber:
         self.mongo_client = pymongo.MongoClient()
         self.hackathon_project_collection = self.mongo_client.swamphacks.projects
         index = [
-            ("github_activity.date",        pymongo.ASCENDING)
+            ("github_activity.delta_hours",        pymongo.ASCENDING)
         ]
 
         self.hackathon_project_collection.create_index(index)
@@ -52,11 +52,19 @@ class GithubCommitGrabber:
 
             while (True):
                 url = 'https://api.github.com/repos/{}/{}/commits?page={}&access_token={}'.format(username, repo_name, str(i), GITHUB_API_KEY)
-                print self.stall_until_credits_refresh()
+                print self.stall_until_credits_refresh(), len(commit_document)
+                if len(commit_document) > 1500:
+		    print url, glg
+                    raw_input("UHHHHH")
                 r = requests.get(url)
                 if r.status_code == 404:
                     break
-                commits += json.loads(r.text)
+                json_response = json.loads(r.text)
+		if "message" in json_response and json_response["message"] in ["Git Repository is empty.", "Repository access blocked"]:
+		    break
+                if len(json_response) == 0:
+                    break
+                commits += json_response
                 i += 1
                 for c in commits:
                     committer_field = c["commit"]["committer"]
