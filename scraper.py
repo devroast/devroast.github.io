@@ -94,19 +94,38 @@ class DevPostScraper:
 
         def project_links_generator(hackathon_devpost_h_urls):
             for hackathon_devpost_h_url in hackathon_devpost_h_urls:
+                hackathon_pagination = set([hackathon_devpost_h_url.url])
                 print hackathon_devpost_h_url
                 body = urllib.urlopen(hackathon_devpost_h_url.url)
                 soup = BeautifulSoup(body, 'html.parser')
-                project_tiles = soup.findAll("div", {"class": "gallery-item"})
-                for project_tile in project_tiles:
-                    yield project_tile.find("a")["href"]
+
+                paginator = soup.find("ul", {"class": "pagination"})
+                if paginator:
+                    for link in paginator.findAll("a"):
+                        if link.text.isdigit() and link["href"] != "/submissions?page=1":
+                            hackathon_pagination.add(hackathon_devpost_h_url.url.replace("/submissions", link["href"]))
+
+                print hackathon_pagination
+                for url in hackathon_pagination:
+                    body = urllib.urlopen(url)
+                    soup = BeautifulSoup(body, 'html.parser')
+
+                    project_tiles = soup.findAll("div", {"class": "gallery-item"})
+                    for project_tile in project_tiles:
+                        yield project_tile.find("a")["href"]
+
 
         plg = project_links_generator(hackathon_devpost_h_urls)
         for url, body in self.pool.imap(fetch, plg):
             print url
             soup = BeautifulSoup(body, 'html.parser')
 
-            project_name = soup.find("h1").text.strip()
+            project_name_element = soup.find("h1")
+            if not project_name_element:
+                # don't have access to this hackathon page
+                continue
+            project_name = project_name_element.text.strip()
+
             try:
                 hackathon = soup.find("div", {"class": "software-list-content"}).find("a")["href"].replace("http://", "")
                 hackathon = re.sub(".devpost.com.*", "", hackathon).strip()
