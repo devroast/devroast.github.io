@@ -84,5 +84,5 @@ class MongoMigrator:
                 print self.projects_collection.update(query, update)
 
 mongo_migrator = MongoMigrator()
-mongo_migrator.migrate_time_delta()
-# mongo_migrator.migrate_commits_to_users_collection()
+# mongo_migrator.migrate_time_delta()
+mongo_migrator.migrate_commits_to_users_collection()

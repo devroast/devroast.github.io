@@ -182,6 +182,26 @@ class DevPostScraper:
                 else:
                     print "skipping", url
 
-hackathon_names = get_mlh_hackathon_names()
-dev_post_scraper = DevPostScraper(hackathon_names)
-dev_post_scraper.run()
+    @staticmethod
+    def get_github_link_from_devpost_id(devpost_id):
+        url = "http://devpost.com/{}".format(devpost_id)
+        body = urllib.urlopen(url)
+        soup = BeautifulSoup(body, 'html.parser')
+        portfolio_links_element = soup.find(id="portfolio-user-links")
+
+        github_link = None
+        for p in portfolio_links_element.findAll("a"):
+            try:
+                link = p["href"]
+                if "github" in p["href"]:
+                    github_link = p["href"]
+                    break
+            except:
+                pass
+
+        return github_link
+
+#hackathon_names = get_mlh_hackathon_names()
+# dev_post_scraper = DevPostScraper(hackathon_names)
+#dev_post_scraper.run()
+#print DevPostScraper.get_github_link_from_devpost_id("ianjjohnson")

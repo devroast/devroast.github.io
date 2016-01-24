@@ -12,7 +12,7 @@ from secrets import *
 class GithubCommitGrabber:
     def __init__(self):
         self.mongo_client = pymongo.MongoClient()
-        self.hackathon_project_collection = self.mongo_client.swamphacks.projects
+        self.hackathon_project_collection = self.mongo_client.swamphacks_v2.projects
         index = [
             ("github_activity.delta_hours",        pymongo.ASCENDING)
         ]
@@ -71,7 +71,7 @@ class GithubCommitGrabber:
                     date = dateutil.parser.parse(committer_field["date"])
 
                     sub_document = {
-                        "delta_hours": date, #int(round(td.total_seconds()/3600)),
+                        "time": date, #int(round(td.total_seconds()/3600)),
                         "committer": committer_field["name"],
                         "message": c["commit"]["message"]
                     }
@@ -81,11 +81,11 @@ class GithubCommitGrabber:
                     break
 
             if len(commits) > 0:
-                first_commit_date = commit_document[-1]["delta_hours"]
+                first_commit_date = min([c["time"] for c in commit_document])
 
                 commit_document = [i for i in reversed(commit_document)]
                 for i in commit_document:
-                    i["delta_hours"] = int((i["delta_hours"] - first_commit_date).total_seconds()/3600)
+                    i["delta_hours"] = int((i["time"] - first_commit_date).total_seconds()/3600)
 
             query = {
                 "project_name": glg["project_name"],
