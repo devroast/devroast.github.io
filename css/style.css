@@ -1,0 +1,155 @@
+@charset "utf-8";
+/* CSS Document */
+
+*, *:before, *:after {
+	-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+}
+
+body {
+	font-family: 'Lato', sans-serif;
+	background: #009dd9;
+	color: #FFF;
+	margin: 0;
+}
+
+.landing {
+    text-align: center;
+    margin-top: 50px;
+    position: fixed;
+    width: 100%;
+    z-index: -1;
+    top: 0;
+}
+
+.landing h1 {
+    font-size: 50px;
+    text-transform: lowercase;
+    line-height: 400px;
+}
+
+.question {
+    background: #fff;
+    padding: 10px;
+    color: #009DD9;
+    font-size: 20px;
+    opacity: .75;
+    transition: opacity .5s;
+}
+
+.question:hover {
+	opacity: 1;
+}
+
+#gitActivity {
+    margin-top: 500px;
+}
+
+.compare {
+    padding: 50px;
+}
+
+.compare:nth-child(even) {
+	background: #fff;
+	color: #009DD9;
+}
+
+.compare:nth-child(odd) {
+
+}
+
+.compare h2:before {
+	content: 'Compare';
+	text-transform: uppercase;
+	display: block;
+	font-size: 18px;
+	margin-bottom: 5px;
+}
+
+.compare h2 {
+    font-size: 35px;
+}
+
+.compare h2 span {
+    font-size: 16px;
+    text-transform: lowercase;
+}
+
+.compare h2 span:before {
+    content: '// ';
+}
+
+
+
+.filter ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter ul li {
+    display: inline-block;
+    color: #b5b5b5;
+    cursor: pointer;
+    transition: color .3s;
+    padding: 10px;
+}
+
+.filter ul li:hover {
+    color: #d94f5c;
+}
+
+.filter .selected {
+    color: #d94f5c;
+    background: #efefef;
+}
+
+.filter {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+
+
+
+svg {
+	width: 100%;
+	height: 100%;
+	max-height: 500px;
+	padding: 30px 0;
+	background: #efefef;
+	max-width: 900px;
+	margin: 0 auto;
+	display: block;
+}
+
+path.slice{
+	stroke-width:2px;
+}
+
+polyline{
+	opacity: .3;
+	stroke: black;
+	stroke-width: 1px;
+	fill: none;
+}
+
+
+
+
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
