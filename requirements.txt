@@ -1,0 +1,7 @@
+beautifulsoup4==4.4.1
+eventlet==0.18.0
+gevent==1.0.2
+greenlet==0.4.9
+pymongo==3.2
+requests==2.2.1
+urllib3==1.7.1

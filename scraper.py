@@ -10,8 +10,11 @@ import pprint
 SKIP_REQUESTS = True
 
 def fetch(url):
-    body = urllib2.urlopen(url).read()
-    return url, body
+    try:
+        body = urllib2.urlopen(url).read()
+        return url, body
+    except:
+        return None, None
 
 def get_mlh_hackathon_seasons():
     # s = ["f", "s"]
@@ -26,10 +29,11 @@ def get_mlh_hackathon_names():
     urls = ["https://mlh.io/seasons/{}/events".format(season) for season in seasons]
     pool = eventlet.GreenPool(2)
     for url, body in pool.imap(fetch, urls):
-        soup = BeautifulSoup(body, 'html.parser')
-        events = soup.findAll("div", { "class" : "event" })
-        for event in events:
-            ret_val.add(event.find("h3").text.strip())
+        if url and body:
+            soup = BeautifulSoup(body, 'html.parser')
+            events = soup.findAll("div", { "class" : "event" })
+            for event in events:
+                ret_val.add(event.find("h3").text.strip())
 
     ret_val.remove("PennApps X") #removing because it's the one duplicate/inconsistency
     return ret_val
@@ -79,13 +83,14 @@ class DevPostScraper:
             search_urls.append(search_url)
 
         for url, body in self.pool.imap(fetch, search_urls):
-            soup = BeautifulSoup(body, 'html.parser')
-            hackathon_tiles = soup.findAll("a", {"class": "clearfix"})
-            for hackathon_tile in hackathon_tiles:
-                hackathon_link = hackathon_tile["href"].split("com")[0] + "com/submissions" #skip main hackathon page and go to submissions
-                hackathon_name = hackathon_tile.find("h2").text.strip()
-                h_url = H_URL(hackathon_name, hackathon_link)
-                ret_val.append(h_url)
+            if url and body:
+                soup = BeautifulSoup(body, 'html.parser')
+                hackathon_tiles = soup.findAll("a", {"class": "clearfix"})
+                for hackathon_tile in hackathon_tiles:
+                    hackathon_link = hackathon_tile["href"].split("com")[0] + "com/submissions" #skip main hackathon page and go to submissions
+                    hackathon_name = hackathon_tile.find("h2").text.strip()
+                    h_url = H_URL(hackathon_name, hackathon_link)
+                    ret_val.append(h_url)
 
         return ret_val
 
@@ -117,62 +122,65 @@ class DevPostScraper:
 
         plg = project_links_generator(hackathon_devpost_h_urls)
         for url, body in self.pool.imap(fetch, plg):
-            print url
-            soup = BeautifulSoup(body, 'html.parser')
+            if url and body:
+                print url
+                soup = BeautifulSoup(body, 'html.parser')
 
-            project_name_element = soup.find("h1")
-            if not project_name_element:
-                # don't have access to this hackathon page
-                continue
-            project_name = project_name_element.text.strip()
+                project_name_element = soup.find("h1")
+                if not project_name_element:
+                    # don't have access to this hackathon page
+                    continue
+                project_name = project_name_element.text.strip()
 
-            try:
-                hackathon = soup.find("div", {"class": "software-list-content"}).find("a")["href"].replace("http://", "")
-                hackathon = re.sub(".devpost.com.*", "", hackathon).strip()
-            except:
-                hackathon = url.replace("http://", "")
-                hackathon = hackathon[:hackathon.index(".devpost")]
-            tags = []
-            group_members = set()
-            other_urls = []
-            first_github_url = None
-            awards = []
+                try:
+                    hackathon = soup.find("div", {"class": "software-list-content"}).find("a")["href"].replace("http://", "")
+                    hackathon = re.sub(".devpost.com.*", "", hackathon).strip()
+                except:
+                    hackathon = url.replace("http://", "")
+                    hackathon = hackathon[:hackathon.index(".devpost")]
+                tags = []
+                group_members = set()
+                other_urls = []
+                first_github_url = None
+                awards = []
 
-            for i in soup.findAll("a", {"class": "user-profile-link"}):
-                group_members.add(i["href"][begin_username_index:])
+                for i in soup.findAll("a", {"class": "user-profile-link"}):
+                    group_members.add(i["href"][begin_username_index:])
 
-            for i in soup.findAll("span", {"class": "cp-tag"}):
-                tags.append(i.text)
+                for i in soup.findAll("span", {"class": "cp-tag"}):
+                    tags.append(i.text)
 
-            software_urls = soup.find("ul", {"data-role": "software-urls"})
-            if software_urls:
-                for link_element in software_urls.findAll("li"):
-                    link = link_element.find("a")["href"].strip()
-                    if not first_github_url and "github" in link:
-                        first_github_url = link
-                    else:
-                        other_urls.append(link)
+                software_urls = soup.find("ul", {"data-role": "software-urls"})
+                if software_urls:
+                    for link_element in software_urls.findAll("li"):
+                        link = link_element.find("a")["href"].strip()
+                        if not first_github_url and "github" in link:
+                            first_github_url = link
+                        else:
+                            other_urls.append(link)
 
-            likes_element = soup.find("span", {"class": "side-count"})
-            likes = int(likes_element.text.strip()) if likes_element else 0
+                likes_element = soup.find("span", {"class": "side-count"})
+                likes = int(likes_element.text.strip()) if likes_element else 0
 
-            awards_elements = soup.findAll("span", {"class": "winner"})
-            if awards_elements:
-                for i in awards_elements:
-                    awards.append(i.parent.text.replace("Winner", "").strip())
+                awards_elements = soup.findAll("span", {"class": "winner"})
+                if awards_elements:
+                    for i in awards_elements:
+                        awards.append(i.parent.text.replace("Winner", "").strip())
 
-            insert_dict = {
-                "project_name": project_name,
-                "hackathon": hackathon,
-                "tags": tags,
-                "group_members": [i for i in group_members],
-                "other_urls": other_urls,
-                "github": first_github_url,
-                "likes": likes,
-                "awards": awards
-            }
-
-            self.hackathon_project_collection.insert(insert_dict)
+                insert_dict = {
+                    "project_name": project_name,
+                    "hackathon": hackathon,
+                    "tags": tags,
+                    "group_members": [i for i in group_members],
+                    "other_urls": other_urls,
+                    "github": first_github_url,
+                    "likes": likes,
+                    "awards": awards
+                }
+                if not self.hackathon_project_collection.find_one({"project_name": insert_dict["project_name"], "hackathon": insert_dict["hackathon"]}):
+                    self.hackathon_project_collection.insert(insert_dict)
+                else:
+                    print "skipping", url
 
 hackathon_names = get_mlh_hackathon_names()
 dev_post_scraper = DevPostScraper(hackathon_names)
