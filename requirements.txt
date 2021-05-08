@@ -1,5 +1,5 @@
 beautifulsoup4==4.4.1
-eventlet==0.18.0
+eventlet==0.31.0
 gevent==1.0.2
 greenlet==0.4.9
 pymongo==3.2
